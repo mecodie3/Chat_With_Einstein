@@ -56,10 +56,14 @@ def chat(user_in,hist):
     return "", [{'role': "user", 'content': user_in},
                     {'role': 'assistant', 'content': response}]
 
+
+def clear_chat():
+    return "", []
     #creating gradio app
 page=gr.Blocks(
         title="Chat with Einstein",
-        theme=gr.themes.Soft())
+        theme=gr.themes.Soft(),
+        )
 
 with page:
         gr.Markdown(
@@ -69,11 +73,14 @@ with page:
             """
         )
         #declare the type of data to be extracted
-        chatbot=gr.Chatbot(type='messages')
+        chatbot=gr.Chatbot(type="messages",
+                           avatar_images=(None,"einstein.png"),
+                           show_label=False)
         #chat is called without ()
-        msg=gr.Textbox()
+        msg=gr.Textbox(show_label=False,placeholder="Ask Einstein anything...")
         msg.submit(chat, [msg, chatbot], [msg,chatbot])
-        clear=gr.Button("Clear Chat")
+        clear=gr.Button("Clear Chat",variant="Secondary")
+        clear.click(clear_chat,outputs=[msg,chatbot])
 
 
         page.launch(share=True)
