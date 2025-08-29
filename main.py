@@ -37,17 +37,24 @@ prompt=ChatPromptTemplate.from_messages([
 chain=prompt | llm | StrOutputParser()
 
 
-#print("Hi, I am Albert, how can I help you today?")
-# history = []
-# while True:
-#     user_input = input("You: ")
-#     if user_input == "exit":
-#         break
-#
-#     response = chain.invoke({"input":user_input,"history":history})
-#     print(f"Albert:{response}")
-#     history.append(HumanMessage(content=user_input))
-#     history.append(AIMessage(content=response))
+print("Hi, I am Albert, how can I help you today?")
+
+
+def chat(user_in,hist):
+    print(user_in,hist)
+
+    langchain_history =[]
+    for item in hist:
+        if item['role']=='user':
+            langchain_history.append(HumanMessage(content=item['content']))
+        elif item['role']=='assistant':
+            langchain_history.append(AIMessage(content=item['content']))
+
+    response = chain.invoke({"input":user_in,"history":langchain_history})
+
+    # return empty string to have an empty input box
+    return "", [{'role': "user", 'content': user_in},
+                    {'role': 'assistant', 'content': response}]
 
     #creating gradio app
 page=gr.Blocks(
@@ -61,8 +68,11 @@ with page:
             Welcome to your personal conversation with Albert Einstein!
             """
         )
-        chatbot=gr.Chatbot()
+        #declare the type of data to be extracted
+        chatbot=gr.Chatbot(type='messages')
+        #chat is called without ()
         msg=gr.Textbox()
+        msg.submit(chat, [msg, chatbot], [msg,chatbot])
         clear=gr.Button("Clear Chat")
 
 
